@@ -1,3 +1,4 @@
+import { useAuth } from '@/lib/auth';
 import { createSite } from '@/lib/database';
 import {
   Modal,
@@ -12,6 +13,7 @@ import {
   Input,
   Button,
   Text,
+  useToast,
   useDisclosure
 } from '@chakra-ui/react';
 import { useRef } from 'react';
@@ -20,6 +22,8 @@ import { useForm } from 'react-hook-form';
 const AddSiteModal = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const initialRef = useRef();
+  const auth = useAuth();
+  const toast = useToast();
 
   const {
     register,
@@ -28,8 +32,21 @@ const AddSiteModal = () => {
     formState: { errors }
   } = useForm();
 
-  const storeSite = (values) => {
-    createSite(values);
+  const storeSite = ({ site, url }) => {
+    createSite({
+      authorId: auth.user.uid,
+      createdAt: new Date().toISOString(),
+      site,
+      url
+    });
+    toast({
+      title: 'Success!',
+      description: "We've added your site.",
+      status: 'success',
+      duration: 5000,
+      isClosable: true
+    });
+    onClose();
   };
 
   return (
