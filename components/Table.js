@@ -14,13 +14,13 @@ export const Th = (props) => (
 );
 
 export const Td = (props) => (
-  <Text
+  <Box
     as="td"
     fontSize="xs"
     color="gray.900"
     borderBottom="1px solid"
     borderBottomColor="gray.100"
-    px={4}
+    p={4}
     {...props}
   />
 );
@@ -43,6 +43,7 @@ export const Table = (props) => {
     <Box
       as="table"
       textAlign="left"
+      backgroundColor="white"
       ml={0}
       mr={0}
       borderRadius={8}

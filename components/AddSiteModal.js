@@ -18,8 +18,9 @@ import {
 } from '@chakra-ui/react';
 import { useRef } from 'react';
 import { useForm } from 'react-hook-form';
+import { mutate } from 'swr';
 
-const AddSiteModal = () => {
+const AddSiteModal = ({ children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const initialRef = useRef();
   const auth = useAuth();
@@ -32,13 +33,14 @@ const AddSiteModal = () => {
     formState: { errors }
   } = useForm();
 
-  const storeSite = ({ site, url }) => {
-    createSite({
+  const storeSite = ({ name, url }) => {
+    const newSite = {
       authorId: auth.user.uid,
       createdAt: new Date().toISOString(),
-      site,
+      name,
       url
-    });
+    };
+    createSite(newSite);
     toast({
       title: 'Success!',
       description: "We've added your site.",
@@ -46,19 +48,27 @@ const AddSiteModal = () => {
       duration: 5000,
       isClosable: true
     });
+    mutate(
+      '/api/sites',
+      async (data) => {
+        return { sites: [...data.sites, newSite] };
+      },
+      false
+    );
     onClose();
   };
 
   return (
     <>
       <Button
-        variant="solid"
-        size="md"
+        backgroundColor="gray.900"
+        color="white"
         fontWeight="medium"
-        maxW="200px"
+        _hover={{ bg: 'gray.700' }}
+        _active={{ bg: 'gray.800', transform: 'scale(0.95)' }}
         onClick={onOpen}
       >
-        Add Your First Site
+        {children}
       </Button>
 
       <Modal initialFocusRef={initialRef} isOpen={isOpen} onClose={onClose}>
@@ -72,9 +82,9 @@ const AddSiteModal = () => {
               <Input
                 ref={initialRef}
                 placeholder="My site"
-                {...register('site', { required: true })}
+                {...register('name', { required: true })}
               />
-              {errors.site && (
+              {errors.name && (
                 <Text color="red.500">Enter your site's name</Text>
               )}
             </FormControl>
